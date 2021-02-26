@@ -5,17 +5,21 @@ import re
 # https://docs.djangoproject.com/en/1.11/topics/testing/overview/#provided-test-case-classes
 from django.test import TestCase
 from django.test.client import Client
-from django.urls import NoReverseMatch
-from django.urls import reverse
+from django.urls import (
+    NoReverseMatch,
+    reverse,
+)
 #from django.utils import unittest
 from django.utils.http import urlencode
 
 # HTK Imports
 from htk.test_scaffold.constants import TESTSERVER
 from htk.test_scaffold.models import TestScaffold
-from htk.test_scaffold.utils import create_test_email
-from htk.test_scaffold.utils import create_test_password
-from htk.test_scaffold.utils import create_test_user
+from htk.test_scaffold.utils import (
+    create_test_email,
+    create_test_password,
+    create_test_user,
+)
 
 
 class BaseTestCase(TestCase):
@@ -103,6 +107,36 @@ class BaseWebTestCase(BaseTestCase):
         if type(client) != Client:
             client = Client()
         response = client.post(path, data=params, follow=follow, secure=secure, **extra)
+        return response
+
+    def _put(self, view_name, client=None, params=None, follow=False, view_args=None, view_kwargs=None, secure=False, **extra):
+        """Wrapper for performing an HTTP PUT request
+        """
+        params = {} if params is None else params
+        view_args = [] if view_args is None else view_args
+        view_kwargs = {} if view_kwargs is None else view_kwargs
+        path = reverse(view_name, args=view_args, kwargs=view_kwargs)
+        if type(client) != Client:
+            client = Client()
+
+        response = client.put(path, data=params, follow=follow, secure=secure, **extra)
+        return response
+
+    def _delete(self, view_name, client=None, params=None, get_params=None, follow=False, view_args=None, view_kwargs=None, secure=False, **extra):
+        """Wrapper for performing an HTTP DELETE request
+        """
+        params = {} if params is None else params
+        get_params = {} if get_params is None else get_params
+        view_args = [] if view_args is None else view_args
+        view_kwargs = {} if view_kwargs is None else view_kwargs
+        path = reverse(view_name, args=view_args, kwargs=view_kwargs)
+        if get_params:
+            query_string = urlencode(get_params)
+            path = '%s?%s' % (path, query_string,)
+
+        if type(client) != Client:
+            client = Client()
+        response = client.delete(path, data=params, follow=follow, secure=secure, **extra)
         return response
 
     def _check_view_is_okay(self, view_name, client=None, params=None, follow=False, secure=False):
