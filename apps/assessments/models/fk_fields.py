@@ -15,8 +15,10 @@ def fk_assessment(related_name, required=False):
     return field
 
 
-def fk_question(related_name, required=False):
-    field = models.ForeignKey(
+def fk_question(related_name, required=False, one_to_one=False):
+    method_name = 'OneToOneField' if one_to_one else 'ForeignKey'
+    field_method = getattr(models, method_name)
+    field = field_method(
         htk_setting('HTK_ASSESSMENTS_QUESTION_MODEL'),
         related_name=related_name,
         **build_kwargs(required=required),
