@@ -809,8 +809,8 @@ class UserEmail(models.Model):
         verbose_name = 'User Email'
         unique_together = (
             (
-                'user',
                 'email',
+                'user',
             ),
         )
 
