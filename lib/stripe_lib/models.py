@@ -513,6 +513,9 @@ class BaseStripeSubscription(BaseStripeModel):
     https://stripe.com/docs/api/subscriptions
     """
 
+    class Meta:
+        abstract = True
+
     # class attributes
     STRIPE_API_CLASS = stripe.Subscription
 
