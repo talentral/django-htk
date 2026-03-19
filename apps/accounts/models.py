@@ -370,7 +370,10 @@ class BaseAbstractUserProfile(
                 'user_id': self.user.id,
                 'user_email': self.user.email,
             }
-            rollbar.report_exc_info(extra_data=extra_data)
+            rollbar.report_message(
+                'User does not have an email for activation reminder',
+                extra_data=extra_data,
+            )
 
     def send_welcome_email(self, template=None, subject=None, sender=None):
         """Sends a welcome email to the user"""
