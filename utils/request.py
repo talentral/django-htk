@@ -102,6 +102,8 @@ def get_full_url_name(resolver_match):
     This method is needed because Django's `resolver_match.url_name`
     does not include namespaces automatically.
     """
+    if isinstance(resolver_match, str):
+        return resolver_match
     namespaces = ":".join(resolver_match.namespaces)
     full_url_name = (
         f"{namespaces}:{resolver_match.url_name}"

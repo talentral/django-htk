@@ -391,6 +391,10 @@ class MaterializedPropertySubstitution(object):
         force=None,
         changed_only=True,
     ):
+        if resolved_instance.pk is None:
+            # instance has no PK yet (pre_save on a new object);
+            # reverse-relation queries require a PK — skip until post_save
+            return
         if resolved_instance.pk in pending_delete:
             # this `resolved_instance` is pending deletion
             # rollbar.report_message(

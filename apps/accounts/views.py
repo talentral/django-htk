@@ -542,8 +542,7 @@ def reset_password(
 
             if (
                 hasattr(request, 'user_agent')
-                and request.user_agent.is_mobile
-                or request.user_agent.is_tablet
+                and (request.user_agent.is_mobile or request.user_agent.is_tablet)
             ) and mobile_reset_url_format:
                 # Add mobile deep link URL if on mobile and format provided
                 data['mobile_reset_url'] = mobile_reset_url_format.format(

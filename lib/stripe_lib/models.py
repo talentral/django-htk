@@ -91,7 +91,7 @@ class BaseStripeCustomer(BaseStripeModel):
         stripe_customer = None
         if email is not None:
             stripe_customer = self.retrieve()
-            if stripe_customer['email'] != email:
+            if stripe_customer and stripe_customer['email'] != email:
                 kwargs = {
                     'email': email,
                 }
@@ -512,6 +512,9 @@ class BaseStripeSubscription(BaseStripeModel):
 
     https://stripe.com/docs/api/subscriptions
     """
+
+    class Meta:
+        managed = False
 
     # class attributes
     STRIPE_API_CLASS = stripe.Subscription
