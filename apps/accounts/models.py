@@ -575,18 +575,20 @@ class BaseAbstractUserProfile(
 
     def get_timezone(self):
         tz = self.timezone if self.timezone else self.get_detected_timezone()
+        if tz:
+            tz = tz.strip()
         return tz
 
     def get_django_timezone(self):
         tz = self.get_timezone()
-        django_timezone = ZoneInfo(tz)
+        if tz and tz in available_timezones():
+            django_timezone = ZoneInfo(tz)
+        else:
+            default_tz = htk_setting('HTK_DEFAULT_TIMEZONE')
+            django_timezone = ZoneInfo(default_tz)
         return django_timezone
 
     def get_zoneinfo(self):
-        return self.get_django_timezone()
-
-    def get_pytz(self):
-        """Deprecated: use get_zoneinfo() instead"""
         return self.get_django_timezone()
 
     def get_detected_country(self):
