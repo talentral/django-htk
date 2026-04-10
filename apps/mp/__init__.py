@@ -13,5 +13,3 @@ __all__ = [
     invalidate_for_instances,
     test_mp,
 ]
-
-default_app_config = 'htk.apps.mp.apps.MpApp'

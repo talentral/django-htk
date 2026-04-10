@@ -1,6 +1,3 @@
-# Third Party (PyPI) Imports
-import pytz
-
 # Django Imports
 from django import forms
 from django.conf import settings

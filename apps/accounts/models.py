@@ -5,8 +5,9 @@ import uuid
 from hashlib import sha1
 
 # Third Party (PyPI) Imports
-import pytz
 import rollbar
+from zoneinfo import ZoneInfo
+from zoneinfo import available_timezones
 
 # Django Imports
 from django.conf import settings
@@ -42,14 +43,7 @@ from htk.utils.notifications import notify
 from htk.utils.request import get_current_request
 
 
-# isort: off
-try:
-    # Django 3.x
-    from django.utils.translation import ugettext_lazy as _
-except ImportError:
-    # Django 4.x
-    from django.utils.translation import gettext_lazy as _
-# isort: on
+from django.utils.translation import gettext_lazy as _
 
 
 # isort: off
@@ -107,7 +101,7 @@ class BaseAbstractUserProfile(
                 tz,
                 tz,
             )
-            for tz in pytz.common_timezones
+            for tz in sorted(available_timezones())
         ],
         blank=True,
         default='America/Los_Angeles',
@@ -581,14 +575,20 @@ class BaseAbstractUserProfile(
 
     def get_timezone(self):
         tz = self.timezone if self.timezone else self.get_detected_timezone()
+        if tz:
+            tz = tz.strip()
         return tz
 
     def get_django_timezone(self):
         tz = self.get_timezone()
-        django_timezone = pytz.timezone(tz)
+        if tz and tz in available_timezones():
+            django_timezone = ZoneInfo(tz)
+        else:
+            default_tz = htk_setting('HTK_DEFAULT_TIMEZONE')
+            django_timezone = ZoneInfo(default_tz)
         return django_timezone
 
-    def get_pytz(self):
+    def get_zoneinfo(self):
         return self.get_django_timezone()
 
     def get_detected_country(self):

@@ -1,8 +1,8 @@
 # Python Standard Library Imports
 import datetime
 
-# Third Party (PyPI) Imports
-import pytz
+# Python Standard Library Imports
+from zoneinfo import ZoneInfo
 
 # HTK Imports
 from htk.lib.sfbart.api import BartAPI
@@ -29,7 +29,7 @@ def get_bart_schedule_depart(orig_station, dest_station, delay_mins=None):
     api = BartAPI(api_key)
 
     if delay_mins:
-        now = utcnow().astimezone(pytz.timezone('America/Los_Angeles'))
+        now = utcnow().astimezone(ZoneInfo('America/Los_Angeles'))
         depart_time = now + datetime.timedelta(minutes=delay_mins)
         depart_time_str = depart_time.strftime('%I:%M%p').lower()
         api_result = api.get_schedule_depart(orig_station, dest_station, time=depart_time_str, trips_before=0)

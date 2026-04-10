@@ -4,7 +4,8 @@ import time
 
 # Third Party (PyPI) Imports
 import dateutil.parser
-import pytz
+from zoneinfo import ZoneInfo
+from zoneinfo import available_timezones
 
 # Django Imports
 from django.conf import settings
@@ -34,15 +35,15 @@ def utcnow():
 
 
 def tznow(timezone_name='America/Los_Angeles'):
-    tz = pytz.timezone(timezone_name)
+    tz = ZoneInfo(timezone_name)
     local_datetime = utcnow().astimezone(tz)
     return local_datetime
 
 
 def localized_datetime(naive_dt, timezone_name='America/Los_Angeles'):
     """Attaches a timezone to a `naive_dt`"""
-    tz = pytz.timezone(timezone_name)
-    dt = tz.localize(naive_dt)
+    tz = ZoneInfo(timezone_name)
+    dt = naive_dt.replace(tzinfo=tz)
     return dt
 
 
@@ -80,7 +81,7 @@ def datetime_to_unix_time(dt, as_millis=False):
 
     if is_aware(dt):
         # convert an aware datetime to UTC first
-        dt = dt.astimezone(pytz.utc)
+        dt = dt.astimezone(datetime.timezone.utc)
     unix_time = time.mktime(dt.timetuple())
 
     if as_millis:
@@ -89,7 +90,7 @@ def datetime_to_unix_time(dt, as_millis=False):
     return unix_time
 
 
-def unix_time_to_datetime(timestamp, tzinfo=pytz.utc, as_millis=False):
+def unix_time_to_datetime(timestamp, tzinfo=datetime.timezone.utc, as_millis=False):
     if as_millis:
         timestamp /= 1000
 
@@ -166,12 +167,12 @@ def get_timezones_within_current_local_time_bounds(
 
     `start_hour` and `end_hour` are naive times
     """
-    all_timezones = pytz.all_timezones
+    all_timezones = sorted(available_timezones())
     timezone_names = []
     now = utcnow()
 
     def _is_within_time_bounds(tz_name):
-        tz = pytz.timezone(tz_name)
+        tz = ZoneInfo(tz_name)
         tz_datetime = now.astimezone(tz)
         result = start_hour <= tz_datetime.hour < end_hour and (
             isoweekdays is None or now.isoweekday() in isoweekdays
