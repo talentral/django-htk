@@ -9,6 +9,10 @@ import rollbar
 from zoneinfo import ZoneInfo
 from zoneinfo import available_timezones
 
+# HTK Timezone Imports
+from htk.utils.timezones import TIMEZONE_ALIASES
+from htk.utils.timezones import VALID_TIMEZONES
+
 # Django Imports
 from django.conf import settings
 from django.db import models
@@ -581,7 +585,11 @@ class BaseAbstractUserProfile(
 
     def get_django_timezone(self):
         tz = self.get_timezone()
-        if tz and tz in available_timezones():
+        if tz:
+            # Resolve legacy/informal names before the validity check
+            tz = TIMEZONE_ALIASES.get(tz, tz)
+
+        if tz and tz in VALID_TIMEZONES:
             django_timezone = ZoneInfo(tz)
         else:
             default_tz = htk_setting('HTK_DEFAULT_TIMEZONE')
@@ -666,6 +674,12 @@ class BaseAbstractUserProfile(
 
                     detected_country = get_country_code_by_ip(ip) or ''
                     detected_timezone = get_timezone_by_ip(ip) or ''
+                    # pygeoip can return bare continent names (e.g. 'America',
+                    # 'Europe') for IPs it can't resolve to city level.
+                    # Store empty rather than guess — detected_timezone should
+                    # reflect what was actually detected, not an approximation.
+                    if detected_timezone not in VALID_TIMEZONES:
+                        detected_timezone = ''
                     self.detected_country = detected_country
                     self.detected_timezone = detected_timezone
                 except:
