@@ -299,9 +299,10 @@ def get_user_email(user, email, is_confirmed=True):
     from htk.apps.accounts.models import UserEmail
 
     try:
-        user_email = UserEmail.objects.get(
-            user=user, email__iexact=email, is_confirmed=is_confirmed
-        )
+        kwargs = {'user': user, 'email__iexact': email}
+        if is_confirmed is not None:
+            kwargs['is_confirmed'] = is_confirmed
+        user_email = UserEmail.objects.get(**kwargs)
     except UserEmail.DoesNotExist:
         user_email = None
     return user_email

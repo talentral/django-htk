@@ -229,7 +229,7 @@ def email_delete(request):
     else:
         # regular user, retrieve by user and email
         from htk.apps.accounts.utils import get_user_email
-        user_email = get_user_email(user, email)
+        user_email = get_user_email(user, email, is_confirmed=None)
 
     if user_email:
         if user_email.delete():
