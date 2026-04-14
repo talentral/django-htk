@@ -59,7 +59,12 @@ class BaseOpenAISystemPrompt(models.Model):
     class Meta:
         abstract = True
         verbose_name = 'OpenAI System Prompt'
-        unique_together = ('key',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['key'],
+                name='%(app_label)s_%(class)s_key_uniq',
+            ),
+        ]
 
     def __str__(self):
         return f'System Prompt: {self.key}'
