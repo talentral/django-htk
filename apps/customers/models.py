@@ -20,9 +20,12 @@ class CustomerAttribute(AbstractAttribute):
     class Meta:
         app_label = htk_setting('HTK_DEFAULT_APP_LABEL')
         verbose_name = 'Customer Attribute'
-        unique_together = (
-            ('holder', 'key',),
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['holder', 'key'],
+                name='htk_customerattribute_holder_key_uniq',
+            ),
+        ]
 
     def __str__(self):
         value = '%s (%s)' % (self.key, self.holder)
@@ -38,9 +41,12 @@ class OrganizationCustomerAttribute(AbstractAttribute):
     class Meta:
         app_label = htk_setting('HTK_DEFAULT_APP_LABEL')
         verbose_name = 'Organization Customer Attribute'
-        unique_together = (
-            ('holder', 'key',),
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['holder', 'key'],
+                name='htk_orgcustomerattribute_holder_key_uniq',
+            ),
+        ]
 
     def __str__(self):
         value = '%s (%s)' % (self.key, self.holder)

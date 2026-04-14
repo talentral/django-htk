@@ -254,10 +254,12 @@ class BaseAbstractOrganizationMember(HtkBaseModel):
     class Meta:
         abstract = True
         verbose_name = 'Organization Member'
-        unique_together = (
-            'user',
-            'organization',
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'organization'],
+                name='%(app_label)s_%(class)s_user_organization_uniq',
+            ),
+        ]
 
     def __str__(self):
         value = '{organization_name} Member - {member_name} ({member_email})'.format(
@@ -510,10 +512,12 @@ class BaseAbstractOrganizationTeamMember(HtkBaseModel):
 
     class Meta:
         abstract = True
-        unique_together = (
-            'user',
-            'team',
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'team'],
+                name='%(app_label)s_%(class)s_user_team_uniq',
+            ),
+        ]
         verbose_name = 'Organization Team Member'
 
     def __str__(self):
@@ -534,10 +538,12 @@ class BaseAbstractOrganizationTeamPosition(HtkBaseModel):
 
     class Meta:
         abstract = True
-        unique_together = (
-            'name',
-            'team',
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'team'],
+                name='%(app_label)s_%(class)s_name_team_uniq',
+            ),
+        ]
         verbose_name = 'Organization Team Position'
 
     def __str__(self):

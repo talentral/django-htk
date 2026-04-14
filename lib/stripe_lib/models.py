@@ -514,7 +514,7 @@ class BaseStripeSubscription(BaseStripeModel):
     """
 
     class Meta:
-        managed = False
+        abstract = True
 
     # class attributes
     STRIPE_API_CLASS = stripe.Subscription
@@ -675,9 +675,12 @@ class BaseStripePrice(BaseStripeModel):
     class Meta:
         abstract = True
 
-        unique_together = (
-            ('live_mode', 'product_id', 'unit_amount', 'currency'),
-        )
+        constraints = [
+            models.UniqueConstraint(
+                fields=['live_mode', 'product_id', 'unit_amount', 'currency'],
+                name='%(app_label)s_%(class)s_live_mode_product_unit_currency_uniq',
+            ),
+        ]
 
     def create(self):
         """Tries to create a price
@@ -740,12 +743,12 @@ class BaseStripePlan(BaseStripeModel):
     class Meta:
         abstract = True
 
-        unique_together = (
-            (
-                'stripe_id',
-                'live_mode',
+        constraints = [
+            models.UniqueConstraint(
+                fields=['stripe_id', 'live_mode'],
+                name='%(app_label)s_%(class)s_stripe_id_live_mode_uniq',
             ),
-        )
+        ]
 
     def create(self):
         """Tries to create a plan

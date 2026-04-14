@@ -60,12 +60,12 @@ class AbstractBibleChapter(models.Model):
     class Meta:
         abstract = True
         verbose_name = 'Bible Chapter'
-        unique_together = (
-            (
-                'book',
-                'chapter',
+        constraints = [
+            models.UniqueConstraint(
+                fields=['book', 'chapter'],
+                name='%(app_label)s_%(class)s_book_chapter_uniq',
             ),
-        )
+        ]
         ordering = (
             'book',
             'chapter',
@@ -97,13 +97,12 @@ class AbstractBibleVerse(models.Model):
     class Meta:
         abstract = True
         verbose_name = 'Bible Verse'
-        unique_together = (
-            (
-                'book',
-                'chapter',
-                'verse',
+        constraints = [
+            models.UniqueConstraint(
+                fields=['book', 'chapter', 'verse'],
+                name='%(app_label)s_%(class)s_book_chapter_verse_uniq',
             ),
-        )
+        ]
         ordering = (
             'book',
             'chapter',
@@ -167,15 +166,12 @@ class AbstractBiblePassage(models.Model):
     class Meta:
         abstract = True
         verbose_name = 'Bible Verse'
-        unique_together = (
-            (
-                'book',
-                'chapter_start',
-                'verse_start',
-                'chapter_end',
-                'verse_end',
+        constraints = [
+            models.UniqueConstraint(
+                fields=['book', 'chapter_start', 'verse_start', 'chapter_end', 'verse_end'],
+                name='%(app_label)s_%(class)s_book_chstart_vsstart_chend_vsend_uniq',
             ),
-        )
+        ]
         ordering = (
             'book',
             'chapter_start',
