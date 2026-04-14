@@ -20,10 +20,10 @@ def priority_connect(self, receiver, sender=None, children=True):
 
     with self.lock:
         self._clear_dead_receivers()
-        for r_key, _ in self.receivers:
+        for r_key, *_ in self.receivers:
             if r_key == lookup_key:
                 break
         else:
             # Adding priority receiver to beginning of the list
-            self.receivers.insert(0, (lookup_key, receiver))
+            self.receivers.insert(0, (lookup_key, receiver, False))
         self.sender_receivers_cache.clear()
