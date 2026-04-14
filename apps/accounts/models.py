@@ -5,8 +5,13 @@ import uuid
 from hashlib import sha1
 
 # Third Party (PyPI) Imports
-import pytz
 import rollbar
+from zoneinfo import ZoneInfo
+from zoneinfo import available_timezones
+
+# HTK Timezone Imports
+from htk.utils.timezones import TIMEZONE_ALIASES
+from htk.utils.timezones import VALID_TIMEZONES
 
 # Django Imports
 from django.conf import settings
@@ -42,14 +47,7 @@ from htk.utils.notifications import notify
 from htk.utils.request import get_current_request
 
 
-# isort: off
-try:
-    # Django 3.x
-    from django.utils.translation import ugettext_lazy as _
-except ImportError:
-    # Django 4.x
-    from django.utils.translation import gettext_lazy as _
-# isort: on
+from django.utils.translation import gettext_lazy as _
 
 
 # isort: off
@@ -107,7 +105,7 @@ class BaseAbstractUserProfile(
                 tz,
                 tz,
             )
-            for tz in pytz.common_timezones
+            for tz in sorted(available_timezones())
         ],
         blank=True,
         default='America/Los_Angeles',
@@ -581,14 +579,24 @@ class BaseAbstractUserProfile(
 
     def get_timezone(self):
         tz = self.timezone if self.timezone else self.get_detected_timezone()
+        if tz:
+            tz = tz.strip()
         return tz
 
     def get_django_timezone(self):
         tz = self.get_timezone()
-        django_timezone = pytz.timezone(tz)
+        if tz:
+            # Resolve legacy/informal names before the validity check
+            tz = TIMEZONE_ALIASES.get(tz, tz)
+
+        if tz and tz in VALID_TIMEZONES:
+            django_timezone = ZoneInfo(tz)
+        else:
+            default_tz = htk_setting('HTK_DEFAULT_TIMEZONE')
+            django_timezone = ZoneInfo(default_tz)
         return django_timezone
 
-    def get_pytz(self):
+    def get_zoneinfo(self):
         return self.get_django_timezone()
 
     def get_detected_country(self):
@@ -666,6 +674,12 @@ class BaseAbstractUserProfile(
 
                     detected_country = get_country_code_by_ip(ip) or ''
                     detected_timezone = get_timezone_by_ip(ip) or ''
+                    # pygeoip can return bare continent names (e.g. 'America',
+                    # 'Europe') for IPs it can't resolve to city level.
+                    # Store empty rather than guess — detected_timezone should
+                    # reflect what was actually detected, not an approximation.
+                    if detected_timezone not in VALID_TIMEZONES:
+                        detected_timezone = ''
                     self.detected_country = detected_country
                     self.detected_timezone = detected_timezone
                 except:

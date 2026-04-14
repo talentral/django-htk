@@ -56,4 +56,9 @@ class OpenAIResult(models.Model):
 
     @cached_property
     def response_json(self):
-        return json.loads(self.response_content)
+        if not self.is_json:
+            return None
+        try:
+            return json.loads(self.response_content)
+        except json.JSONDecodeError:
+            return None

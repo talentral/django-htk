@@ -15,13 +15,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 
 
-try:
-    # Django 3.x
-    # Django Imports
-    from django.utils.translation import ugettext_lazy as _
-except ImportError:
-    # Django 4.x
-    from django.utils.translation import gettext_lazy as _
+# Django Imports
+from django.utils.translation import gettext_lazy as _
 
 
 # HTK Imports

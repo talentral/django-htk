@@ -22,6 +22,7 @@ from htk.utils import (
     resolve_model_dynamically,
 )
 from htk.utils.geo import get_us_state_abbreviation_choices
+from htk.utils.timezones import TIMEZONE_ALIASES, VALID_TIMEZONES
 
 
 UserModel = get_user_model()
@@ -154,8 +155,12 @@ class TimeZoneForm(AbstractModelInstanceUpdateForm):
 
     def save(self, request, *args, **kwargs):
         user_profile = super(TimeZoneForm, self).save(request, *args, **kwargs)
-        timezone = request.POST.get('timezone', '')
+        timezone = self.cleaned_data.get('timezone', '') or request.POST.get('timezone', '')
         default_timezone = htk_setting('HTK_DEFAULT_TIMEZONE', 'UTC')
-        user_profile.timezone = timezone or default_timezone
+        # Resolve any legacy/alias names; reject values that are still invalid.
+        timezone = TIMEZONE_ALIASES.get(timezone, timezone)
+        if timezone not in VALID_TIMEZONES:
+            timezone = default_timezone
+        user_profile.timezone = timezone
         user_profile.save()
         return user_profile
