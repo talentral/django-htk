@@ -514,7 +514,7 @@ class BaseStripeSubscription(BaseStripeModel):
     """
 
     class Meta:
-        abstract = True
+        managed = False
 
     # class attributes
     STRIPE_API_CLASS = stripe.Subscription
